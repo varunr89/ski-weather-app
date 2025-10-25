@@ -43,13 +43,23 @@ export function useCsvData(url: string, timestampField = 'Current DateTime [PST]
               return
             }
 
-            const rows = results.data as Record<string, string>[]
-            const headers = results.meta.fields || []
-            const timestamp = rows[0]?.[timestampField]
+            const allHeaders = results.meta.fields || []
+            const allRows = results.data as Record<string, string>[]
+            
+            const filteredHeaders = allHeaders.slice(1)
+            const filteredRows = allRows.map(row => {
+              const newRow: Record<string, string> = {}
+              filteredHeaders.forEach(header => {
+                newRow[header] = row[header]
+              })
+              return newRow
+            })
+            
+            const timestamp = filteredRows[0]?.[timestampField]
 
             setData({
-              headers,
-              rows,
+              headers: filteredHeaders,
+              rows: filteredRows,
               timestamp
             })
             setLoading(false)
