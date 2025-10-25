@@ -18,6 +18,10 @@ const defaultTheme = {
     padding: "2rem",
   },
   extend: {
+    fontFamily: {
+      inter: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      mono: ['Fira Code', 'Courier New', 'monospace'],
+    },
     screens: {
       coarse: { raw: "(pointer: coarse)" },
       fine: { raw: "(pointer: fine)" },
