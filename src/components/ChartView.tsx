@@ -306,21 +306,23 @@ export function ChartView({ data }: ChartViewProps) {
                     const color = LOCATION_COLORS[locIdx % LOCATION_COLORS.length]
                     const lineStyle = LINE_STYLES[varIdx % LINE_STYLES.length]
                     
-                    return (
-                      <Line
-                        key={key}
-                        type="monotone"
-                        dataKey={key}
-                        yAxisId={needsMultipleAxes ? variable : undefined}
-                        stroke={color}
-                        strokeWidth={2}
-                        strokeDasharray={lineStyle.strokeDasharray}
-                        dot={{ fill: color, r: 3 }}
-                        activeDot={{ r: 5 }}
-                        name={`${location} - ${variable}`}
-                        connectNulls
-                      />
-                    )
+                    const lineProps: any = {
+                      type: "monotone",
+                      dataKey: key,
+                      stroke: color,
+                      strokeWidth: 2,
+                      strokeDasharray: lineStyle.strokeDasharray,
+                      dot: { fill: color, r: 3 },
+                      activeDot: { r: 5 },
+                      name: `${location} - ${variable}`,
+                      connectNulls: true
+                    }
+                    
+                    if (needsMultipleAxes) {
+                      lineProps.yAxisId = variable
+                    }
+                    
+                    return <Line key={key} {...lineProps} />
                   })
                 )}
               </LineChart>
