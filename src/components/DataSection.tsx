@@ -2,9 +2,11 @@ import { ArrowClockwise, Warning } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { UseCsvDataResult } from '@/hooks/useCsvData'
 import { DataTable } from './DataTable'
 import { ColorLegend } from './ColorLegend'
+import { ChartView } from './ChartView'
 
 interface DataSectionProps {
   id: string
@@ -70,34 +72,52 @@ export function DataSection({ id, title, csvResult, noaaResult, type }: DataSect
           <ColorLegend type={type} />
         </div>
 
-        {data && (
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Forecast Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DataTable
-                headers={data.headers}
-                rows={data.rows}
-                timestamp={data.timestamp}
-              />
-            </CardContent>
-          </Card>
-        )}
+        {data && <ChartView data={data} />}
 
-        {noaaResult && !noaaResult.loading && !noaaResult.error && noaaResult.data && (
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>NOAA Supplemental Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DataTable
-                headers={noaaResult.data.headers}
-                rows={noaaResult.data.rows}
-                timestamp={noaaResult.data.timestamp}
-              />
-            </CardContent>
-          </Card>
+        {data && (
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="table-data">
+              <AccordionTrigger className="text-lg font-medium">
+                View Table Data
+              </AccordionTrigger>
+              <AccordionContent>
+                <Card className="shadow-lg mt-4">
+                  <CardHeader>
+                    <CardTitle>Forecast Data</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DataTable
+                      headers={data.headers}
+                      rows={data.rows}
+                      timestamp={data.timestamp}
+                    />
+                  </CardContent>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+
+            {noaaResult && !noaaResult.loading && !noaaResult.error && noaaResult.data && (
+              <AccordionItem value="noaa-data">
+                <AccordionTrigger className="text-lg font-medium">
+                  View NOAA Supplemental Data
+                </AccordionTrigger>
+                <AccordionContent>
+                  <Card className="shadow-lg mt-4">
+                    <CardHeader>
+                      <CardTitle>NOAA Supplemental Data</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <DataTable
+                        headers={noaaResult.data.headers}
+                        rows={noaaResult.data.rows}
+                        timestamp={noaaResult.data.timestamp}
+                      />
+                    </CardContent>
+                  </Card>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
         )}
       </div>
     </section>

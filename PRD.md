@@ -3,8 +3,8 @@
 A comprehensive data visualization application that displays weather-dependent activity forecasts for ski resorts and climbing locations, fetching and presenting real-time CSV data in an accessible, visually organized format.
 
 **Experience Qualities**:
-1. **Data-Driven**: Clean, tabular presentation that prioritizes information density while maintaining readability through color coding and smart truncation
-2. **Responsive**: Seamlessly adapts from mobile to desktop viewing with smooth scrolling, sticky headers, and accessible navigation
+1. **Data-Driven**: Visual charts with interactive filters prioritize trend analysis while maintaining access to detailed tabular data through collapsible sections
+2. **Responsive**: Seamlessly adapts from mobile to desktop with responsive charts, smooth scrolling, and accessible navigation
 3. **Professional**: Academic/scientific aesthetic with proper attribution, clear timestamps, and reliable data fetching
 
 **Complexity Level**: Light Application (multiple features with basic state)
@@ -22,12 +22,19 @@ A comprehensive data visualization application that displays weather-dependent a
 - **Progression**: App loads → Show loading states → Fetch CSVs in parallel → Parse to objects → Display in tables (or show error states)
 - **Success criteria**: All four CSV sources load successfully, parse correctly, and populate their respective sections
 
-### Responsive Data Tables
-- **Functionality**: Display ski resort and climbing location data in scrollable tables with sticky headers
-- **Purpose**: Allow users to scan large datasets efficiently while maintaining context
+### Interactive Chart Visualization
+- **Functionality**: Display forecast data as line charts with location and variable filters
+- **Purpose**: Provide intuitive visual representation of trends over time for specific locations and metrics
 - **Trigger**: After successful CSV data fetch
-- **Progression**: Data loaded → Render table with sticky first column + header row → Format date columns as "YYYY-MM-DD (Day)" → Apply color tinting to index cells → Enable horizontal/vertical scrolling
-- **Success criteria**: Tables scroll smoothly on all devices, headers remain visible, dates are human-readable, color coding is clear
+- **Progression**: Data loaded → Extract locations and variables → Render chart with default selection → User changes location/variable → Chart updates with filtered data → X-axis shows dates, Y-axis shows numerical values
+- **Success criteria**: Charts render smoothly, filters update instantly, trends are clearly visible, axes are properly labeled with units
+
+### Responsive Data Tables (Accordion)
+- **Functionality**: Display full tabular data in collapsible accordion for reference
+- **Purpose**: Provide detailed view for users who need comprehensive data access while keeping primary view clean
+- **Trigger**: User expands accordion item
+- **Progression**: Chart visible by default → User clicks "View Table Data" → Accordion expands → Table renders with sticky headers → User can view all raw data
+- **Success criteria**: Tables expand smoothly, headers remain sticky, accordion state persists during interaction
 
 ### Color-Coded Index Cells
 - **Functionality**: Parse "Skiability index:green" or "Climbing index:red" text and apply background tints
@@ -84,7 +91,7 @@ A comprehensive data visualization application that displays weather-dependent a
 
 ## Design Direction
 
-The design should feel professional, data-focused, and trustworthy—like a scientific or meteorological dashboard. Think clean government weather sites or academic research portals: crisp typography, ample whitespace, subtle gradients, and purposeful color usage that enhances data comprehension. Minimal interface that lets the data be the primary focus while maintaining visual sophistication through elegant spacing, soft shadows, and smooth transitions.
+The design should feel professional, data-focused, and analytical—like a scientific or meteorological dashboard enhanced with modern data visualization. Think clean weather analytics platforms or research data portals: crisp typography, ample whitespace, interactive charts with intuitive controls, and purposeful color usage that enhances data comprehension. Minimal interface that lets visualizations be the primary focus while maintaining sophistication through elegant spacing, soft shadows, and smooth transitions.
 
 ## Color Selection
 
@@ -130,13 +137,16 @@ Animations should be purposeful and subtle, enhancing perceived performance duri
 ## Component Selection
 
 - **Components**: 
-  - **Card**: Primary container for tables, legends, and citation block with subtle shadows
+  - **Card**: Primary container for charts, tables, legends, and citation block with subtle shadows
+  - **Select**: Dropdown filters for location and variable selection
+  - **Accordion**: Collapsible container for table data
+  - **LineChart (Recharts)**: Primary data visualization component with responsive container
   - **ScrollArea**: Enables smooth horizontal/vertical scrolling for data tables
   - **Dialog**: Shows full text for truncated cells
   - **Skeleton**: Loading placeholders during CSV fetch
   - **Button**: Navigation links, retry actions, and interactive elements
   - **Separator**: Visual dividers between sections
-  - **Badge**: Color legend indicators
+  - **Label**: Form labels for filter controls
   - Tailwind modifications: Custom gradient backgrounds for hero header, adjusted card padding for data density, custom color classes for index cell tinting
 
 - **Customizations**: 
@@ -147,7 +157,10 @@ Animations should be purposeful and subtle, enhancing perceived performance duri
 
 - **States**: 
   - **Buttons**: Default (primary blue) → Hover (lighter blue with lift) → Active (pressed with shadow reduction) → Disabled (muted gray with reduced opacity)
+  - **Selects**: Default (border visible) → Focus (ring highlight) → Open (dropdown visible) → Selected (highlighted option)
+  - **Accordion**: Closed (chevron down) → Open (chevron up, content visible) → Hover (subtle highlight)
   - **Table Cells**: Default (white) → Hover (subtle highlight) → Clickable long text (cursor pointer + underline on hover)
+  - **Chart Lines**: Default (smooth path) → Hover (tooltip visible, dot enlarged) → Active (dot highlighted)
   - **Links**: Default (accent cyan) → Hover (darker cyan + underline) → Visited (slightly muted)
   - **Loading**: Skeleton shimmer animation while fetching data
 
@@ -156,13 +169,17 @@ Animations should be purposeful and subtle, enhancing perceived performance duri
   - Refresh (ArrowClockwise) for retry buttons on errors
   - Info (Info) for tooltips/help text
   - Warning (Warning) for error states
+  - Chevron (in Accordion) for expand/collapse indicators
 
 - **Spacing**: Consistent 4/8/16/24/32px scale using Tailwind classes (gap-2, gap-4, gap-6, etc.), generous padding in cards (p-6 to p-8), comfortable line-height for data readability
 
 - **Mobile**: 
   - Hero title scales down (text-3xl → text-5xl responsive)
-  - Tables enable horizontal scroll with obvious scroll indicators
+  - Charts remain responsive and readable on mobile screens
+  - Filter selects stack vertically on mobile
+  - Accordion works smoothly with touch gestures
+  - Tables enable horizontal scroll when accordion is expanded
   - Navigation links stack vertically on mobile
   - Cards maintain full width on mobile with adjusted padding
   - Touch-friendly tap targets (min 44px height)
-  - Sticky headers remain functional on mobile for context preservation
+  - Chart tooltips work with touch interactions
