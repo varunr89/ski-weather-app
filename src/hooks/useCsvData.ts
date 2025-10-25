@@ -68,7 +68,7 @@ export function useCsvData(url: string, timestampField = 'Current DateTime [PST]
             const allHeaders = results.meta.fields || []
             const allRows = results.data as Record<string, string>[]
             
-            const filteredHeaders = allHeaders.slice(1)
+            const filteredHeaders = allHeaders.slice(1, -1)
             const filteredRows = allRows.map(row => {
               const newRow: Record<string, string> = {}
               filteredHeaders.forEach(header => {
