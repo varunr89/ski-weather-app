@@ -41,12 +41,6 @@ export function DataTable({ headers, rows, timestamp }: DataTableProps) {
   return (
     <>
       <div className="space-y-4">
-        {timestamp && (
-          <p className="text-sm font-medium text-muted-foreground">
-            Forecast current as of {timestamp} PST
-          </p>
-        )}
-        
         <div className="overflow-auto border rounded-lg shadow-sm">
           <div className="inline-block min-w-full align-middle">
             <table className="min-w-full divide-y divide-border">

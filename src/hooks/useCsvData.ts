@@ -32,8 +32,30 @@ export function useCsvData(url: string, timestampField = 'Current DateTime [PST]
         }
 
         const text = await response.text()
+        
+        const lines = text.split('\n')
+        let forecastTimestamp: string | undefined
+        let headerLineIndex = 0
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim()
+          
+          if (line.match(/Forecast current as of.*PST/i)) {
+            const match = line.match(/Forecast current as of (.+)/i)
+            if (match) {
+              forecastTimestamp = match[1].trim()
+            }
+          }
+          
+          if (line.toLowerCase().includes('resort') || line.toLowerCase().includes('location')) {
+            headerLineIndex = i
+            break
+          }
+        }
+        
+        const cleanedCsv = lines.slice(headerLineIndex).join('\n')
 
-        Papa.parse(text, {
+        Papa.parse(cleanedCsv, {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
@@ -54,13 +76,11 @@ export function useCsvData(url: string, timestampField = 'Current DateTime [PST]
               })
               return newRow
             })
-            
-            const timestamp = filteredRows[0]?.[timestampField]
 
             setData({
               headers: filteredHeaders,
               rows: filteredRows,
-              timestamp
+              timestamp: forecastTimestamp
             })
             setLoading(false)
           },

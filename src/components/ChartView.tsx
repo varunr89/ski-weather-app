@@ -127,6 +127,11 @@ export function ChartView({ data }: ChartViewProps) {
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle>Forecast Visualization</CardTitle>
+        {data.timestamp && (
+          <p className="text-sm text-muted-foreground mt-2">
+            {data.timestamp}
+          </p>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
