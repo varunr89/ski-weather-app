@@ -32,6 +32,11 @@ interface ChartViewProps {
   data: CsvData
 }
 
+type ChartPoint = {
+  date: string
+  dateLabel: string
+} & Record<string, number | string | undefined>
+
 const LOCATION_COLORS = [
   'rgb(255, 99, 132)',
   'rgb(54, 162, 235)',
@@ -66,7 +71,18 @@ export function ChartView({ data }: ChartViewProps) {
 
   const firstColumnKey = headers[0]
   const locations = useMemo(() => {
-    return rows.map(row => row[firstColumnKey]).filter(Boolean)
+    const seen = new Set<string>()
+    const uniqueLocations: string[] = []
+
+    rows.forEach(row => {
+      const location = row[firstColumnKey]
+      if (location && !seen.has(location)) {
+        seen.add(location)
+        uniqueLocations.push(location)
+      }
+    })
+
+    return uniqueLocations
   }, [rows, firstColumnKey])
 
   const dateColumns = useMemo(() => {
@@ -95,8 +111,24 @@ export function ChartView({ data }: ChartViewProps) {
     return Array.from(allVars).sort()
   }, [rows, dateColumns])
 
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([locations[0] || ''])
-  const [selectedVariables, setSelectedVariables] = useState<string[]>([variables[0] || ''])
+  const [selectedLocations, setSelectedLocations] = useState<string[]>(
+    locations.length ? [locations[0]] : []
+  )
+  const [selectedVariables, setSelectedVariables] = useState<string[]>(
+    variables.length ? [variables[0]] : []
+  )
+
+  useEffect(() => {
+    if (locations.length > 0 && selectedLocations.length === 0) {
+      setSelectedLocations([locations[0]])
+    }
+  }, [locations, selectedLocations.length])
+
+  useEffect(() => {
+    if (variables.length > 0 && selectedVariables.length === 0) {
+      setSelectedVariables([variables[0]])
+    }
+  }, [variables, selectedVariables.length])
 
   const toggleLocation = (location: string) => {
     setSelectedLocations(prev => 
