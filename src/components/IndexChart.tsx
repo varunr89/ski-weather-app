@@ -176,9 +176,20 @@ export function IndexChart({ data, type }: IndexChartProps) {
         mode: 'index' as const,
         intersect: false,
       },
+      layout: {
+        padding: {
+          bottom: 20
+        }
+      },
       plugins: {
         legend: {
-          position: 'top' as const,
+          position: 'bottom' as const,
+          align: 'center' as const,
+          labels: {
+            boxWidth: 12,
+            padding: 15,
+            usePointStyle: true,
+          }
         },
         tooltip: {
           callbacks: {
