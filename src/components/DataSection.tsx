@@ -7,6 +7,7 @@ import { UseCsvDataResult } from '@/hooks/useCsvData'
 import { DataTable } from './DataTable'
 import { ColorLegend } from './ColorLegend'
 import { ChartView } from './ChartView'
+import { IndexChart } from './IndexChart'
 
 interface DataSectionProps {
   id: string
@@ -71,6 +72,8 @@ export function DataSection({ id, title, csvResult, noaaResult, type }: DataSect
           
           <ColorLegend type={type} />
         </div>
+
+        {data && <IndexChart data={data} type={type} />}
 
         {data && <ChartView data={data} />}
 
