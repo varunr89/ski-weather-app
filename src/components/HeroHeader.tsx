@@ -13,7 +13,6 @@ export function HeroHeader({ onNavigate }: HeroHeaderProps) {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground tracking-tight">
             Conditions for Skiing and Climbing near Bellingham, Washington
           </h1>
-          <p className="text-lg md:text-xl text-primary-foreground/90 max-w-2xl">Real-time weather forecasts and activity indices for mountain sports enthusiasts</p>
           <nav className="flex flex-wrap gap-4 justify-center mt-4">
             <Button
               onClick={() => onNavigate('skiing')}
