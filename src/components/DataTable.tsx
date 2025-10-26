@@ -96,6 +96,11 @@ export function DataTable({ headers, rows, timestamp }: DataTableProps) {
             </table>
           </div>
         </div>
+        {timestamp && (
+          <p className="text-xs text-muted-foreground text-right">
+            Last updated: {timestamp}
+          </p>
+        )}
       </div>
 
       <Dialog open={!!selectedCell} onOpenChange={(open) => !open && setSelectedCell(null)}>

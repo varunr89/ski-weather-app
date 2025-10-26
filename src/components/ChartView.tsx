@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -10,6 +10,11 @@ import { formatDateColumn } from '@/lib/dataFormatters'
 interface ChartViewProps {
   data: CsvData
 }
+
+type ChartPoint = {
+  date: string
+  dateLabel: string
+} & Record<string, number | string | undefined>
 
 const LOCATION_COLORS = [
   'hsl(var(--chart-1))',
@@ -37,7 +42,18 @@ export function ChartView({ data }: ChartViewProps) {
 
   const firstColumnKey = headers[0]
   const locations = useMemo(() => {
-    return rows.map(row => row[firstColumnKey]).filter(Boolean)
+    const seen = new Set<string>()
+    const uniqueLocations: string[] = []
+
+    rows.forEach(row => {
+      const location = row[firstColumnKey]
+      if (location && !seen.has(location)) {
+        seen.add(location)
+        uniqueLocations.push(location)
+      }
+    })
+
+    return uniqueLocations
   }, [rows, firstColumnKey])
 
   const dateColumns = useMemo(() => {
@@ -66,8 +82,24 @@ export function ChartView({ data }: ChartViewProps) {
     return Array.from(allVars).sort()
   }, [rows, dateColumns])
 
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([locations[0] || ''])
-  const [selectedVariables, setSelectedVariables] = useState<string[]>([variables[0] || ''])
+  const [selectedLocations, setSelectedLocations] = useState<string[]>(
+    locations.length ? [locations[0]] : []
+  )
+  const [selectedVariables, setSelectedVariables] = useState<string[]>(
+    variables.length ? [variables[0]] : []
+  )
+
+  useEffect(() => {
+    if (locations.length > 0 && selectedLocations.length === 0) {
+      setSelectedLocations([locations[0]])
+    }
+  }, [locations, selectedLocations.length])
+
+  useEffect(() => {
+    if (variables.length > 0 && selectedVariables.length === 0) {
+      setSelectedVariables([variables[0]])
+    }
+  }, [variables, selectedVariables.length])
 
   const toggleLocation = (location: string) => {
     setSelectedLocations(prev => 
@@ -85,6 +117,14 @@ export function ChartView({ data }: ChartViewProps) {
     )
   }
 
+  const locationColorMap = useMemo(() => {
+    const map = new Map<string, string>()
+    locations.forEach((location, idx) => {
+      map.set(location, LOCATION_COLORS[idx % LOCATION_COLORS.length])
+    })
+    return map
+  }, [locations])
+
   const { chartData, variableUnits, variableScales } = useMemo(() => {
     if (selectedLocations.length === 0 || selectedVariables.length === 0) {
       return { chartData: [], variableUnits: new Map(), variableScales: new Map() }
@@ -94,7 +134,7 @@ export function ChartView({ data }: ChartViewProps) {
     const scales = new Map<string, { min: number; max: number }>()
 
     const allDataPoints = dateColumns.map(dateCol => {
-      const point: Record<string, any> = {
+      const point: ChartPoint = {
         date: dateCol,
         dateLabel: formatDateColumn(dateCol),
       }
@@ -294,34 +334,38 @@ export function ChartView({ data }: ChartViewProps) {
                     color: 'hsl(var(--popover-foreground))'
                   }}
                 />
-                <Legend 
+                <Legend
                   wrapperStyle={{ color: 'hsl(var(--foreground))' }}
+                  payload={selectedLocations.map(location => ({
+                    value: location,
+                    id: location,
+                    color: locationColorMap.get(location) || 'hsl(var(--chart-1))',
+                    type: 'line',
+                  }))}
                 />
                 
-                {selectedLocations.flatMap((location, locIdx) =>
+                {selectedLocations.flatMap((location) =>
                   selectedVariables.map((variable, varIdx) => {
                     const key = `${location}__${variable}`
-                    const color = LOCATION_COLORS[locIdx % LOCATION_COLORS.length]
+                    const color = locationColorMap.get(location) || LOCATION_COLORS[0]
                     const lineStyle = LINE_STYLES[varIdx % LINE_STYLES.length]
                     
-                    const lineProps: any = {
-                      type: "linear",
-                      dataKey: key,
-                      stroke: color,
-                      strokeWidth: 3,
-                      strokeDasharray: lineStyle.strokeDasharray === '0' ? undefined : lineStyle.strokeDasharray,
-                      dot: { fill: color, r: 5, strokeWidth: 2, stroke: color },
-                      activeDot: { r: 7, strokeWidth: 2 },
-                      name: `${location} - ${variable}`,
-                      connectNulls: false,
-                      isAnimationActive: true
-                    }
-                    
-                    if (needsMultipleAxes) {
-                      lineProps.yAxisId = variable
-                    }
-                    
-                    return <Line key={key} {...lineProps} />
+                    return (
+                      <Line
+                        key={key}
+                        type="linear"
+                        dataKey={key}
+                        stroke={color}
+                        strokeWidth={3}
+                        strokeDasharray={lineStyle.strokeDasharray === '0' ? undefined : lineStyle.strokeDasharray}
+                        dot={{ fill: color, r: 5, strokeWidth: 2, stroke: color }}
+                        activeDot={{ r: 7, strokeWidth: 2 }}
+                        name={`${location} - ${variable}`}
+                        connectNulls={false}
+                        isAnimationActive
+                        yAxisId={needsMultipleAxes ? variable : undefined}
+                      />
+                    )
                   })
                 )}
               </LineChart>
