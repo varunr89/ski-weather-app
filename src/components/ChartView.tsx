@@ -247,15 +247,14 @@ export function ChartView({ data }: ChartViewProps) {
           <div className="w-full h-[500px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 5, right: needsMultipleAxes ? 60 : 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                 <XAxis
-                  dataKey="date"
+                  dataKey="dateLabel"
                   className="text-xs"
                   tick={{ fill: 'hsl(var(--foreground))' }}
-                  tickFormatter={(value) => {
-                    const date = new Date(value + 'T00:00:00')
-                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                  }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
                 />
                 
                 {needsMultipleAxes ? (
@@ -294,7 +293,6 @@ export function ChartView({ data }: ChartViewProps) {
                     borderRadius: '0.5rem',
                     color: 'hsl(var(--popover-foreground))'
                   }}
-                  labelFormatter={(value) => formatDateColumn(value as string)}
                 />
                 <Legend 
                   wrapperStyle={{ color: 'hsl(var(--foreground))' }}
@@ -307,15 +305,16 @@ export function ChartView({ data }: ChartViewProps) {
                     const lineStyle = LINE_STYLES[varIdx % LINE_STYLES.length]
                     
                     const lineProps: any = {
-                      type: "monotone",
+                      type: "linear",
                       dataKey: key,
                       stroke: color,
-                      strokeWidth: 2,
-                      strokeDasharray: lineStyle.strokeDasharray,
-                      dot: { fill: color, r: 3 },
-                      activeDot: { r: 5 },
+                      strokeWidth: 3,
+                      strokeDasharray: lineStyle.strokeDasharray === '0' ? undefined : lineStyle.strokeDasharray,
+                      dot: { fill: color, r: 5, strokeWidth: 2, stroke: color },
+                      activeDot: { r: 7, strokeWidth: 2 },
                       name: `${location} - ${variable}`,
-                      connectNulls: true
+                      connectNulls: false,
+                      isAnimationActive: true
                     }
                     
                     if (needsMultipleAxes) {
