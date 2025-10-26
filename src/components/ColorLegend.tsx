@@ -28,17 +28,17 @@ export function ColorLegend({ type }: ColorLegendProps) {
     {
       color: 'green',
       label: 'Good',
-      description: 'Excellent conditions for activity'
+      description: '50°F < Day temp < 75°F, Rain < 0.001"'
     },
     {
       color: 'yellow',
       label: 'Fair',
-      description: 'Moderate conditions, use caution'
+      description: '(40°F < Day temp < 50°F) OR (75°F < Day temp < 85°F), Rain < 0.1"'
     },
     {
       color: 'red',
       label: 'Poor',
-      description: 'Challenging or unsafe conditions'
+      description: 'Day temp < 40°F OR Day temp > 85°F OR Rain > 0.1"'
     }
   ]
 
