@@ -67,6 +67,14 @@ export function IndexChart({ data, type }: IndexChartProps) {
       dataByLocation.set(location, [])
     })
 
+    const colorToValue = (color: string): number | null => {
+      const lowerColor = color.toLowerCase().trim()
+      if (lowerColor === 'green') return 83
+      if (lowerColor === 'yellow') return 50
+      if (lowerColor === 'red') return 16
+      return null
+    }
+
     dateColumns.forEach(dateCol => {
       labels.push(formatDateColumn(dateCol))
 
@@ -78,7 +86,7 @@ export function IndexChart({ data, type }: IndexChartProps) {
         }
 
         const cellValue = locationRow[dateCol] || ''
-        const lines = cellValue.split('\n')
+        const lines = cellValue.split(',').map(s => s.trim())
 
         let indexValue: number | null = null
         for (const line of lines) {
@@ -86,9 +94,8 @@ export function IndexChart({ data, type }: IndexChartProps) {
             const colonIndex = line.indexOf(':')
             if (colonIndex > 0) {
               const valueStr = line.substring(colonIndex + 1).trim()
-              const numMatch = valueStr.match(/-?\d+\.?\d*/)
-              if (numMatch) {
-                indexValue = parseFloat(numMatch[0])
+              indexValue = colorToValue(valueStr)
+              if (indexValue !== null) {
                 break
               }
             }
