@@ -32,7 +32,7 @@ export function ColorLegend({ type }: ColorLegendProps) {
         <CardTitle className="text-lg">{title} Legend</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-row flex-wrap gap-6">
           {legendItems.map((item) => (
             <div key={item.color} className="flex items-center gap-3">
               <Badge
