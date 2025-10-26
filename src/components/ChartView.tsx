@@ -1,35 +1,64 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { CsvData } from '@/hooks/useCsvData'
 import { formatDateColumn } from '@/lib/dataFormatters'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions,
+} from 'chart.js'
+import { Line } from 'react-chartjs-2'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 interface ChartViewProps {
   data: CsvData
 }
 
 const LOCATION_COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-  'oklch(0.65 0.15 330)',
-  'oklch(0.70 0.12 150)',
-  'oklch(0.60 0.18 280)',
-  'oklch(0.75 0.10 60)',
-  'oklch(0.55 0.20 190)',
+  'rgb(255, 99, 132)',
+  'rgb(54, 162, 235)',
+  'rgb(255, 206, 86)',
+  'rgb(75, 192, 192)',
+  'rgb(153, 102, 255)',
+  'rgb(255, 159, 64)',
+  'rgb(201, 203, 207)',
+  'rgb(83, 102, 255)',
+  'rgb(255, 99, 255)',
+  'rgb(99, 255, 132)',
 ]
 
-const LINE_STYLES = [
-  { strokeDasharray: '0', shape: 'circle' },
-  { strokeDasharray: '5 5', shape: 'square' },
-  { strokeDasharray: '10 5', shape: 'triangle' },
-  { strokeDasharray: '3 3', shape: 'diamond' },
-  { strokeDasharray: '8 4 2 4', shape: 'star' },
+const LINE_DASH_PATTERNS = [
+  [],
+  [5, 5],
+  [10, 5],
+  [3, 3],
+  [8, 4, 2, 4],
+]
+
+const POINT_STYLES = [
+  'circle' as const,
+  'rect' as const,
+  'triangle' as const,
+  'rectRot' as const,
+  'star' as const,
 ]
 
 export function ChartView({ data }: ChartViewProps) {
@@ -85,19 +114,18 @@ export function ChartView({ data }: ChartViewProps) {
     )
   }
 
-  const { chartData, variableUnits, variableScales } = useMemo(() => {
+  const { chartLabels, datasets, variableUnits, variableScales } = useMemo(() => {
     if (selectedLocations.length === 0 || selectedVariables.length === 0) {
-      return { chartData: [], variableUnits: new Map(), variableScales: new Map() }
+      return { chartLabels: [], datasets: [], variableUnits: new Map(), variableScales: new Map() }
     }
 
     const units = new Map<string, string>()
     const scales = new Map<string, { min: number; max: number }>()
+    const labels: string[] = []
+    const dataBySeriesKey = new Map<string, (number | null)[]>()
 
-    const allDataPoints = dateColumns.map(dateCol => {
-      const point: Record<string, any> = {
-        date: dateCol,
-        dateLabel: formatDateColumn(dateCol),
-      }
+    dateColumns.forEach(dateCol => {
+      labels.push(formatDateColumn(dateCol))
 
       selectedLocations.forEach(location => {
         const locationRow = rows.find(row => row[firstColumnKey] === location)
@@ -106,7 +134,13 @@ export function ChartView({ data }: ChartViewProps) {
         selectedVariables.forEach(variable => {
           const cellValue = locationRow[dateCol] || ''
           const lines = cellValue.split('\n')
+          const key = `${location}__${variable}`
 
+          if (!dataBySeriesKey.has(key)) {
+            dataBySeriesKey.set(key, [])
+          }
+
+          let valueFound = false
           for (const line of lines) {
             if (line.toLowerCase().includes(variable.toLowerCase())) {
               const colonIndex = line.indexOf(':')
@@ -115,8 +149,8 @@ export function ChartView({ data }: ChartViewProps) {
                 const numMatch = valueStr.match(/-?\d+\.?\d*/)
                 if (numMatch) {
                   const value = parseFloat(numMatch[0])
-                  const key = `${location}__${variable}`
-                  point[key] = value
+                  dataBySeriesKey.get(key)!.push(value)
+                  valueFound = true
 
                   if (!units.has(variable)) {
                     if (valueStr.includes('°F')) units.set(variable, '°F')
@@ -143,13 +177,38 @@ export function ChartView({ data }: ChartViewProps) {
               }
             }
           }
+
+          if (!valueFound) {
+            dataBySeriesKey.get(key)!.push(null)
+          }
         })
       })
-
-      return point
     })
 
-    return { chartData: allDataPoints, variableUnits: units, variableScales: scales }
+    const chartDatasets: any[] = selectedLocations.flatMap((location, locIdx) =>
+      selectedVariables.map((variable, varIdx) => {
+        const key = `${location}__${variable}`
+        const color = LOCATION_COLORS[locIdx % LOCATION_COLORS.length]
+        const borderDash = LINE_DASH_PATTERNS[varIdx % LINE_DASH_PATTERNS.length]
+        const pointStyle = POINT_STYLES[varIdx % POINT_STYLES.length]
+
+        return {
+          label: `${location} - ${variable}`,
+          data: dataBySeriesKey.get(key) || [],
+          borderColor: color,
+          backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+          borderWidth: 2,
+          borderDash,
+          pointStyle,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.1,
+          yAxisID: variable,
+        }
+      })
+    )
+
+    return { chartLabels: labels, datasets: chartDatasets, variableUnits: units, variableScales: scales }
   }, [selectedLocations, selectedVariables, rows, dateColumns, firstColumnKey])
 
   const needsMultipleAxes = useMemo(() => {
@@ -173,6 +232,74 @@ export function ChartView({ data }: ChartViewProps) {
     }
     return false
   }, [selectedVariables, variableScales])
+
+  const chartOptions: ChartOptions<'line'> = useMemo(() => {
+    const yAxes: Record<string, any> = {}
+
+    if (needsMultipleAxes) {
+      selectedVariables.forEach((variable, idx) => {
+        yAxes[variable] = {
+          type: 'linear' as const,
+          display: true,
+          position: idx % 2 === 0 ? 'left' : 'right',
+          title: {
+            display: true,
+            text: `${variable} (${variableUnits.get(variable) || ''})`,
+          },
+          grid: {
+            drawOnChartArea: idx === 0,
+          },
+        }
+      })
+    } else {
+      yAxes['y'] = {
+        type: 'linear' as const,
+        display: true,
+        position: 'left',
+        title: {
+          display: true,
+          text: selectedVariables.length === 1 
+            ? `${selectedVariables[0]} (${variableUnits.get(selectedVariables[0]) || ''})` 
+            : 'Value',
+        },
+      }
+
+      datasets.forEach(dataset => {
+        dataset.yAxisID = 'y'
+      })
+    }
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index' as const,
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          position: 'top' as const,
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label || ''
+              if (label) {
+                label += ': '
+              }
+              if (context.parsed.y !== null) {
+                const varMatch = label.match(/- (.+)$/)
+                const unit = varMatch ? variableUnits.get(varMatch[1].trim()) || '' : ''
+                label += context.parsed.y + ' ' + unit
+              }
+              return label
+            }
+          }
+        },
+      },
+      scales: yAxes,
+    }
+  }, [needsMultipleAxes, selectedVariables, variableUnits, datasets])
 
   if (locations.length === 0 || variables.length === 0) {
     return (
@@ -243,89 +370,9 @@ export function ChartView({ data }: ChartViewProps) {
           </div>
         </div>
 
-        {chartData.length > 0 && selectedLocations.length > 0 && selectedVariables.length > 0 ? (
+        {chartLabels.length > 0 && selectedLocations.length > 0 && selectedVariables.length > 0 ? (
           <div className="w-full h-[500px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: needsMultipleAxes ? 60 : 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                <XAxis
-                  dataKey="dateLabel"
-                  className="text-xs"
-                  tick={{ fill: 'hsl(var(--foreground))' }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                />
-                
-                {needsMultipleAxes ? (
-                  selectedVariables.map((variable, idx) => (
-                    <YAxis
-                      key={variable}
-                      yAxisId={variable}
-                      orientation={idx % 2 === 0 ? 'left' : 'right'}
-                      className="text-xs"
-                      tick={{ fill: 'hsl(var(--foreground))' }}
-                      label={{
-                        value: `${variable} (${variableUnits.get(variable) || ''})`,
-                        angle: -90,
-                        position: idx % 2 === 0 ? 'insideLeft' : 'insideRight',
-                        style: { fill: 'hsl(var(--foreground))', fontSize: '12px' }
-                      }}
-                    />
-                  ))
-                ) : (
-                  <YAxis
-                    className="text-xs"
-                    tick={{ fill: 'hsl(var(--foreground))' }}
-                    label={{
-                      value: selectedVariables.length === 1 ? variableUnits.get(selectedVariables[0]) || '' : 'Value',
-                      angle: -90,
-                      position: 'insideLeft',
-                      style: { fill: 'hsl(var(--foreground))' }
-                    }}
-                  />
-                )}
-                
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--popover))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '0.5rem',
-                    color: 'hsl(var(--popover-foreground))'
-                  }}
-                />
-                <Legend 
-                  wrapperStyle={{ color: 'hsl(var(--foreground))' }}
-                />
-                
-                {selectedLocations.flatMap((location, locIdx) =>
-                  selectedVariables.map((variable, varIdx) => {
-                    const key = `${location}__${variable}`
-                    const color = LOCATION_COLORS[locIdx % LOCATION_COLORS.length]
-                    const lineStyle = LINE_STYLES[varIdx % LINE_STYLES.length]
-                    
-                    const lineProps: any = {
-                      type: "linear",
-                      dataKey: key,
-                      stroke: color,
-                      strokeWidth: 3,
-                      strokeDasharray: lineStyle.strokeDasharray === '0' ? undefined : lineStyle.strokeDasharray,
-                      dot: { fill: color, r: 5, strokeWidth: 2, stroke: color },
-                      activeDot: { r: 7, strokeWidth: 2 },
-                      name: `${location} - ${variable}`,
-                      connectNulls: false,
-                      isAnimationActive: true
-                    }
-                    
-                    if (needsMultipleAxes) {
-                      lineProps.yAxisId = variable
-                    }
-                    
-                    return <Line key={key} {...lineProps} />
-                  })
-                )}
-              </LineChart>
-            </ResponsiveContainer>
+            <Line options={chartOptions as any} data={{ labels: chartLabels, datasets } as any} />
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
