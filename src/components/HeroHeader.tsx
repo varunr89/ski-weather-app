@@ -1,5 +1,6 @@
 import { ArrowDown } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
+import mountBakerImg from '@/assets/images/Mount_Baker_22181.jpeg'
 
 interface HeroHeaderProps {
   onNavigate: (section: 'skiing' | 'climbing') => void
@@ -11,7 +12,7 @@ export function HeroHeader({ onNavigate }: HeroHeaderProps) {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: 'url(https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Mount_Baker_from_Bellingham_Bay.jpg/1920px-Mount_Baker_from_Bellingham_Bay.jpg)',
+          backgroundImage: `url(${mountBakerImg})`,
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
