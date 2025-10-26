@@ -8,7 +8,23 @@ interface ColorLegendProps {
 export function ColorLegend({ type }: ColorLegendProps) {
   const title = type === 'skiing' ? 'Skiability Index' : 'Climbing Index'
   
-  const legendItems = [
+  const legendItems = type === 'skiing' ? [
+    {
+      color: 'green',
+      label: 'Good',
+      description: 'Average temp < 32°F, 24h snow > 3", 24h rain < 0.1", wind (4h avg) < 25 MPH'
+    },
+    {
+      color: 'yellow',
+      label: 'Fair',
+      description: 'Average temp < 34°F, 24h snow < 3", 24h rain < 1", wind (4h avg) < 25 MPH'
+    },
+    {
+      color: 'red',
+      label: 'Poor',
+      description: '(Temp > 32°F and 24h rain > 1") OR (Temp < 34°F and 72h snow < 1") OR wind (4h avg) > 31 MPH'
+    }
+  ] : [
     {
       color: 'green',
       label: 'Good',
