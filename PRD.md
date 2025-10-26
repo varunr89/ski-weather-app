@@ -23,11 +23,11 @@ A comprehensive data visualization application that displays weather-dependent a
 - **Success criteria**: All four CSV sources load successfully, parse correctly, and populate their respective sections
 
 ### Interactive Chart Visualization
-- **Functionality**: Display forecast data as line charts with location and variable filters
-- **Purpose**: Provide intuitive visual representation of trends over time for specific locations and metrics
+- **Functionality**: Display forecast data as line charts with horizontal multi-select location and variable filters
+- **Purpose**: Provide intuitive visual representation of trends over time, comparing multiple locations and metrics simultaneously
 - **Trigger**: After successful CSV data fetch
-- **Progression**: Data loaded → Extract locations and variables → Render chart with default selection → User changes location/variable → Chart updates with filtered data → X-axis shows dates, Y-axis shows numerical values
-- **Success criteria**: Charts render smoothly, filters update instantly, trends are clearly visible, axes are properly labeled with units
+- **Progression**: Data loaded → Extract locations and variables → Render chart with default selection → User selects multiple locations/variables via horizontal checkboxes → Chart updates with all selected data → Lines connect points to show trends → Multiple Y-axes created when variable scales differ significantly → Each location gets unique color, each variable gets unique line style
+- **Success criteria**: Charts render smoothly, multi-select filters work seamlessly, line graphs show trends clearly, multiple Y-axes appear when scales differ by 3x or more, location colors and variable line styles are distinct and consistent
 
 ### Responsive Data Tables (Accordion)
 - **Functionality**: Display full tabular data in collapsible accordion for reference
@@ -138,16 +138,16 @@ Animations should be purposeful and subtle, enhancing perceived performance duri
 
 - **Components**: 
   - **Card**: Primary container for charts, tables, legends, and citation block with subtle shadows
-  - **Select**: Dropdown filters for location and variable selection
+  - **Checkbox**: Multi-select filters for location and variable selection displayed horizontally
+  - **ScrollArea**: Enables horizontal scrolling for filter checkboxes and vertical/horizontal scrolling for data tables
   - **Accordion**: Collapsible container for table data
-  - **LineChart (Recharts)**: Primary data visualization component with responsive container
-  - **ScrollArea**: Enables smooth horizontal/vertical scrolling for data tables
+  - **LineChart (Recharts)**: Primary data visualization with multiple Y-axes support and responsive container
   - **Dialog**: Shows full text for truncated cells
   - **Skeleton**: Loading placeholders during CSV fetch
   - **Button**: Navigation links, retry actions, and interactive elements
   - **Separator**: Visual dividers between sections
   - **Label**: Form labels for filter controls
-  - Tailwind modifications: Custom gradient backgrounds for hero header, adjusted card padding for data density, custom color classes for index cell tinting
+  - Tailwind modifications: Custom gradient backgrounds for hero header, adjusted card padding for data density, custom color classes for index cell tinting, horizontal flex layout for filters
 
 - **Customizations**: 
   - Sticky table headers and first column (custom CSS with position: sticky)
@@ -157,10 +157,10 @@ Animations should be purposeful and subtle, enhancing perceived performance duri
 
 - **States**: 
   - **Buttons**: Default (primary blue) → Hover (lighter blue with lift) → Active (pressed with shadow reduction) → Disabled (muted gray with reduced opacity)
-  - **Selects**: Default (border visible) → Focus (ring highlight) → Open (dropdown visible) → Selected (highlighted option)
+  - **Checkboxes**: Unchecked (empty box) → Checked (filled with checkmark) → Hover (subtle highlight) → Focus (ring visible)
   - **Accordion**: Closed (chevron down) → Open (chevron up, content visible) → Hover (subtle highlight)
   - **Table Cells**: Default (white) → Hover (subtle highlight) → Clickable long text (cursor pointer + underline on hover)
-  - **Chart Lines**: Default (smooth path) → Hover (tooltip visible, dot enlarged) → Active (dot highlighted)
+  - **Chart Lines**: Default (smooth connected line with dots) → Hover (tooltip visible, dot enlarged, line highlighted) → Active (dot highlighted) → Multiple lines visible simultaneously with distinct colors and dash patterns
   - **Links**: Default (accent cyan) → Hover (darker cyan + underline) → Visited (slightly muted)
   - **Loading**: Skeleton shimmer animation while fetching data
 
@@ -176,10 +176,12 @@ Animations should be purposeful and subtle, enhancing perceived performance duri
 - **Mobile**: 
   - Hero title scales down (text-3xl → text-5xl responsive)
   - Charts remain responsive and readable on mobile screens
-  - Filter selects stack vertically on mobile
+  - Horizontal filter checkboxes scroll horizontally on narrow screens
+  - Checkbox labels wrap appropriately on smaller screens
   - Accordion works smoothly with touch gestures
   - Tables enable horizontal scroll when accordion is expanded
   - Navigation links stack vertically on mobile
   - Cards maintain full width on mobile with adjusted padding
   - Touch-friendly tap targets (min 44px height)
   - Chart tooltips work with touch interactions
+  - Multiple Y-axes remain legible on mobile with adjusted label positioning

@@ -195,13 +195,13 @@ export function ChartView({ data }: ChartViewProps) {
         )}
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
           <div className="space-y-3">
             <Label className="text-base font-semibold">Locations</Label>
-            <ScrollArea className="h-[200px] rounded-md border p-4">
-              <div className="space-y-3">
+            <ScrollArea className="w-full">
+              <div className="flex flex-wrap gap-4 pb-2">
                 {locations.map(location => (
-                  <div key={location} className="flex items-center space-x-2">
+                  <div key={location} className="flex items-center space-x-2 whitespace-nowrap">
                     <Checkbox
                       id={`location-${location}`}
                       checked={selectedLocations.includes(location)}
@@ -221,10 +221,10 @@ export function ChartView({ data }: ChartViewProps) {
 
           <div className="space-y-3">
             <Label className="text-base font-semibold">Variables</Label>
-            <ScrollArea className="h-[200px] rounded-md border p-4">
-              <div className="space-y-3">
+            <ScrollArea className="w-full">
+              <div className="flex flex-wrap gap-4 pb-2">
                 {variables.map(variable => (
-                  <div key={variable} className="flex items-center space-x-2">
+                  <div key={variable} className="flex items-center space-x-2 whitespace-nowrap">
                     <Checkbox
                       id={`variable-${variable}`}
                       checked={selectedVariables.includes(variable)}
