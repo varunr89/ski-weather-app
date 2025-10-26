@@ -10,8 +10,8 @@ export function HeroHeader({ onNavigate }: HeroHeaderProps) {
     <header className="relative overflow-hidden bg-gradient-to-br from-primary via-secondary to-accent py-16 px-6">
       <div className="container mx-auto max-w-7xl">
         <div className="flex flex-col items-center text-center gap-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground tracking-tight">
-            Ski Weather
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground tracking-tight">
+            Conditions for Skiing and Climbing near Bellingham, Washington
           </h1>
           <p className="text-lg md:text-xl text-primary-foreground/90 max-w-2xl">
             Real-time weather forecasts and activity indices for mountain sports enthusiasts
