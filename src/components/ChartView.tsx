@@ -391,27 +391,4 @@ export function ChartView({ data }: ChartViewProps) {
                     />
                     <label
                       htmlFor={`variable-${variable}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      {variable}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </div>
-
-        {chartLabels.length > 0 && selectedLocations.length > 0 && selectedVariables.length > 0 ? (
-          <div className="w-full h-[500px]">
-            <Line options={chartOptions as any} data={{ labels: chartLabels, datasets } as any} />
-          </div>
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            Please select at least one location and one variable to view the chart
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-no

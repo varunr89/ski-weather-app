@@ -108,11 +108,4 @@ export function DataTable({ headers, rows, timestamp }: DataTableProps) {
           <DialogHeader>
             <DialogTitle>{selectedCell?.header}</DialogTitle>
           </DialogHeader>
-          <div className="mt-4 text-sm whitespace-pre-wrap">
-            {selectedCell?.content}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  )
-}
+          <div
