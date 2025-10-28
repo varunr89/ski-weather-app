@@ -9,12 +9,25 @@ import { resolve } from 'path'
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
 const isGithubActions = process.env.GITHUB_ACTIONS === "true";
-const basePath =
+
+const normalizeBasePath = (value: string) => {
+  if (!value || value === "/") return "/";
+  const trimmed = value.replace(/^\/|\/$/g, "");
+  return trimmed ? `/${trimmed}/` : "/";
+};
+
+const explicitBasePath =
+  process.env.VITE_BASE_PATH !== undefined
+    ? normalizeBasePath(process.env.VITE_BASE_PATH)
+    : null;
+const defaultBasePath =
   isGithubActions && repoName
     ? repoName.endsWith(".github.io")
       ? "/"
       : `/${repoName}/`
     : "/";
+
+const basePath = explicitBasePath ?? defaultBasePath;
 
 // https://vite.dev/config/
 export default defineConfig({
