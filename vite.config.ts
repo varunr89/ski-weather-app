@@ -7,9 +7,16 @@ import createIconImportProxy from "@github/spark/vitePhosphorIconProxyPlugin";
 import { resolve } from 'path'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
+const normalizeBasePath = (value?: string | null) => {
+  if (!value || value === "/") return "/";
+  const trimmed = value.replace(/^\/|\/$/g, "");
+  return trimmed ? `/${trimmed}/` : "/";
+};
+const basePath = normalizeBasePath(process.env.VITE_BASE_PATH ?? "/");
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: basePath,
   plugins: [
     react(),
     tailwindcss(),

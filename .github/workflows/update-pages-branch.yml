@@ -1,0 +1,58 @@
+name: Update GitHub Pages branch
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Mirror main into feature/github-pages-deploy with overlay
+        id: sync
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin feature/github-pages-deploy:feature/github-pages-deploy || true
+
+          if ! git show-ref --verify --quiet refs/heads/feature/github-pages-deploy; then
+            git branch feature/github-pages-deploy
+          fi
+
+          WORKTREE_DIR="../feature-github-pages-deploy"
+          rm -rf "$WORKTREE_DIR"
+
+          git worktree add "$WORKTREE_DIR" feature/github-pages-deploy
+          trap 'git worktree remove --force "$WORKTREE_DIR"' EXIT
+
+          rsync -a --delete --exclude ".git/" --exclude ".github/pages-overlay/" ./ "$WORKTREE_DIR"/
+
+          if [ -d ".github/pages-overlay" ]; then
+            rsync -a .github/pages-overlay/ "$WORKTREE_DIR/.github/"
+          fi
+
+          cd "$WORKTREE_DIR"
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "Sync from main (${GITHUB_SHA::7})"
+            git push origin HEAD:feature/github-pages-deploy --force
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No changes to sync"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          cd "$GITHUB_WORKSPACE"
