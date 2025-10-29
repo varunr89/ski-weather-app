@@ -37,7 +37,7 @@ jobs:
           git worktree add "$WORKTREE_DIR" feature/github-pages-deploy
           trap 'git worktree remove --force "$WORKTREE_DIR"' EXIT
 
-          rsync -a --delete --exclude ".git/" --exclude ".github/pages-overlay/" ./ "$WORKTREE_DIR"/
+          rsync -a --delete --exclude ".git" --exclude ".github/pages-overlay/" ./ "$WORKTREE_DIR"/
 
           if [ -d ".github/pages-overlay" ]; then
             rsync -a .github/pages-overlay/ "$WORKTREE_DIR/.github/"
