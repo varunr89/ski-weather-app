@@ -402,14 +402,22 @@ export function ChartView({ data }: ChartViewProps) {
           </div>
         </div>
 
-        {chartLabels.length > 0 && selectedLocations.length > 0 && selectedVariables.length > 0 ? (
-          <div className="w-full h-[500px]">
-            <Line options={chartOptions as any} data={{ labels: chartLabels, datasets } as any} />
+        {selectedLocations.length > 0 && selectedVariables.length > 0 && (
+          <div className="h-96">
+            <Line options={chartOptions} data={{ labels: chartLabels, datasets }} />
           </div>
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            Please select at least one location and one variable to view the chart
-          </div>
+        )}
+
+        {selectedLocations.length === 0 && (
+          <p className="text-center text-sm text-muted-foreground py-8">
+            Please select at least one location
+          </p>
+        )}
+
+        {selectedVariables.length === 0 && (
+          <p className="text-center text-sm text-muted-foreground py-8">
+            Please select at least one variable
+          </p>
         )}
       </CardContent>
     </Card>

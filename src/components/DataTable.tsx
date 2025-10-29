@@ -108,7 +108,7 @@ export function DataTable({ headers, rows, timestamp }: DataTableProps) {
           <DialogHeader>
             <DialogTitle>{selectedCell?.header}</DialogTitle>
           </DialogHeader>
-          <div className="mt-4 text-sm whitespace-pre-wrap">
+          <div className="whitespace-pre-wrap text-sm">
             {selectedCell?.content}
           </div>
         </DialogContent>
