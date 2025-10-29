@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import Papa from 'papaparse'
+import * as Papa from 'papaparse'
 
 export interface CsvData {
   headers: string[]
