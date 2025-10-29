@@ -36,10 +36,13 @@ jobs:
           git worktree add "$WORKTREE_DIR" feature/github-pages-deploy
           trap 'git worktree remove --force "$WORKTREE_DIR"' EXIT
 
-          rsync -a --delete --exclude ".git" --exclude ".github/pages-overlay/" ./ "$WORKTREE_DIR"/
+          # Sync all files except .git, pages-overlay, and workflow files
+          # Workflow files are excluded because GITHUB_TOKEN cannot modify them
+          rsync -a --delete --exclude ".git" --exclude ".github/pages-overlay/" --exclude ".github/workflows/" ./ "$WORKTREE_DIR"/
 
+          # Sync pages-overlay if it exists, but skip workflow files
           if [ -d ".github/pages-overlay" ]; then
-            rsync -a .github/pages-overlay/ "$WORKTREE_DIR/.github/"
+            rsync -a --exclude "workflows/" .github/pages-overlay/ "$WORKTREE_DIR/.github/"
           fi
 
           cd "$WORKTREE_DIR"
