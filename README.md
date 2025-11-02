@@ -2,6 +2,8 @@
 
 A modern, responsive single-page application that displays real-time weather forecasts and activity indices for ski resorts and climbing locations. Built with React 18, TypeScript, and Vite.
 
+Check out the app at : https://skiweatherapp.projects.bhavanaai.com/
+
 ## Features
 
 - **Real-time CSV Data Fetching**: Loads ski resort and climbing location forecast data from remote CSV sources
